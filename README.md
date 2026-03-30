@@ -48,26 +48,6 @@ Instead of treating all habits as generic checkboxes, this app keeps **Body**, *
 - **SQLite** (`sqlite-net-pcl`)
 - **XAML + MVVM**
 
-## Screenshots
-
-Add these images under `docs/screenshots/` and GitHub will render them here.
-
-### Tri-Fold Dashboard
-
-![Tri-Fold dashboard](docs/screenshots/trifold-overview.png)
-
-### Body Planner (Month Calendar)
-
-![Body planner month calendar](docs/screenshots/body-calendar.png)
-
-### Body Template Progress
-
-![Body template progress chart](docs/screenshots/body-progress-chart.png)
-
-### Mind Goals and Time Logging
-
-![Mind goals and time logging](docs/screenshots/mind-goals.png)
-
 ## Project Structure
 
 - `TriFoldApp/Models` - domain and persistence models
