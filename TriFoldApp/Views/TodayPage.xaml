@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:TriFoldApp.Models"
+             xmlns:viewModels="clr-namespace:TriFoldApp.ViewModels"
+             x:Class="TriFoldApp.Views.TodayPage"
+             x:DataType="viewModels:TodayViewModel"
+             Title="Tri-Fold">
+    <RefreshView Command="{Binding RefreshCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <Label Text="Tri-Fold" FontSize="30" FontAttributes="Bold" />
+                <Label Text="{Binding TodayLabel}" FontSize="14" />
+
+                <Frame Padding="10" BorderColor="LightGray">
+                    <VerticalStackLayout Spacing="8">
+                        <WebView HeightRequest="320" Source="{Binding TriFoldImageSource}" />
+                        <Label Text="{Binding TriFoldStatusLabel}" FontAttributes="Bold" />
+                        <Label Text="{Binding DailyProgressLabel}" FontSize="12" />
+                        <Label Text="{Binding WorkoutProgressLabel}" FontSize="12" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Padding="12" BorderColor="LightGray">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Goals" FontSize="20" FontAttributes="Bold" />
+                        <Label Text="{Binding MindSubtaskGoalsHeader}" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding MindSubtaskGoals}" HeightRequest="120">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:TaskTemplateItem">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding Title}" HorizontalOptions="FillAndExpand" />
+                                        <Label Text="{Binding SubgoalProgressLabel}" />
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Label Text="{Binding SpiritSubtaskGoalsHeader}" FontAttributes="Bold" />
+                        <CollectionView ItemsSource="{Binding SpiritSubtaskGoals}" HeightRequest="120">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:TaskTemplateItem">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding Title}" HorizontalOptions="FillAndExpand" />
+                                        <Label Text="{Binding SubgoalProgressLabel}" />
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Frame Grid.Column="0" Padding="10" BorderColor="LightGray">
+                        <VerticalStackLayout>
+                            <Label Text="Open" FontSize="12" />
+                            <Label Text="{Binding OpenTasksCount}" FontSize="22" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="1" Padding="10" BorderColor="LightGray">
+                        <VerticalStackLayout>
+                            <Label Text="Done" FontSize="12" />
+                            <Label Text="{Binding CompletedTasksCount}" FontSize="22" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame Grid.Column="2" Padding="10" BorderColor="LightGray">
+                        <VerticalStackLayout>
+                            <Label Text="Workout Min" FontSize="12" />
+                            <Label Text="{Binding WeeklyWorkoutMinutes}" FontSize="22" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+                <Label Text="{Binding TodayCompletionRate, StringFormat='Completion rate: {0}%'}" FontSize="14" />
+
+                <Label Text="Today's Tasks" FontSize="20" FontAttributes="Bold" />
+                <CollectionView ItemsSource="{Binding TodayTasks}" HeightRequest="320">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:TrackerTaskItem">
+                            <Frame Padding="10" Margin="0,0,0,8" BorderColor="LightGray">
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label Text="{Binding Title}" VerticalOptions="Center" HorizontalOptions="StartAndExpand" />
+                                    <Label Text="{Binding DurationMinutes, StringFormat=' {0}m'}" VerticalOptions="Center" />
+                                    <Label Text="{Binding Category}" VerticalOptions="Center" />
+                                    <Button Text="Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTaskCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

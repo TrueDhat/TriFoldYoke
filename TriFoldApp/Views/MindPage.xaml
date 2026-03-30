@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:TriFoldApp.Models"
+             xmlns:viewModels="clr-namespace:TriFoldApp.ViewModels"
+             x:Class="TriFoldApp.Views.MindPage"
+             x:DataType="viewModels:MindViewModel"
+             Title="Mind">
+    <RefreshView Command="{Binding RefreshCommand}">
+        <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Label Text="Mind" FontSize="26" FontAttributes="Bold" />
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Goal Times" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding StandardTasks}" HeightRequest="210">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:TaskTemplateItem">
+                                <VerticalStackLayout Spacing="4" Margin="0,0,0,8">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="{Binding Title}" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label Text="Goal" VerticalOptions="Center" />
+                                        <Entry WidthRequest="80"
+                                               Keyboard="Numeric"
+                                               Placeholder="min"
+                                               Text="{Binding GoalInputMinutes}" />
+                                        <Button Text="Set Goal"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SaveStandardTaskGoalCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Button Text="Clear Goal"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ClearStandardTaskGoalCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Label Text="{Binding SubgoalProgressLabel}"
+                                               VerticalOptions="Center"
+                                               HorizontalOptions="EndAndExpand" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Standard Mind Tasks" FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Entry Placeholder="Save reusable task name" Text="{Binding NewStandardTaskTitle}" HorizontalOptions="FillAndExpand" />
+                        <Button Text="Save" Command="{Binding AddStandardTaskCommand}" />
+                    </HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding StandardTasks}" HeightRequest="140">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:TaskTemplateItem">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Title}" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
+                                    <Button Text="Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteStandardTaskCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Add Time" FontAttributes="Bold" />
+                    <Picker Title="Select task"
+                            ItemsSource="{Binding AddTaskOptions}"
+                            ItemDisplayBinding="{Binding DisplayLabel}"
+                            SelectedItem="{Binding SelectedAddTaskOption}" />
+                    <Entry Placeholder="Other task description"
+                           IsVisible="{Binding IsOtherTaskSelected}"
+                           Text="{Binding OtherTaskTitle}" />
+                    <Entry Placeholder="Completed duration (minutes)"
+                           Keyboard="Numeric"
+                           Text="{Binding CompletedTaskDurationMinutes}" />
+                    <DatePicker Date="{Binding SelectedDueDate}" />
+                    <Button Text="Add Time" Command="{Binding AddTaskCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <CollectionView ItemsSource="{Binding Tasks}" HeightRequest="320">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TrackerTaskItem">
+                        <Frame Padding="10" Margin="0,0,0,8" BorderColor="LightGray">
+                            <HorizontalStackLayout Spacing="12">
+                                <CheckBox IsChecked="{Binding IsCompleted}" IsEnabled="False" />
+                                <VerticalStackLayout HorizontalOptions="StartAndExpand">
+                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding DueDate, StringFormat='Due {0:MMM d}'}" FontSize="12" />
+                                </VerticalStackLayout>
+                                <Label Text="{Binding DurationMinutes, StringFormat=' {0}m'}" VerticalOptions="Center" />
+                                <Button Text="Delete"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTaskCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

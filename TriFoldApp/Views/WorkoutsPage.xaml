@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:TriFoldApp.Models"
+             xmlns:viewModels="clr-namespace:TriFoldApp.ViewModels"
+             x:Class="TriFoldApp.Views.WorkoutsPage"
+             x:DataType="viewModels:WorkoutsViewModel"
+             Title="Workouts">
+    <RefreshView Command="{Binding RefreshCommand}">
+        <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Label Text="Workout History" FontSize="26" FontAttributes="Bold" />
+            <HorizontalStackLayout Spacing="20">
+                <Label Text="{Binding WorkoutCount, StringFormat='Sessions: {0}'}" />
+                <Label Text="{Binding TotalMinutes, StringFormat='Minutes: {0}'}" />
+                <Label Text="{Binding CurrentStreakDays, StringFormat='Streak: {0}d'}" />
+            </HorizontalStackLayout>
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Template Progress (Daily Lifted Volume)" FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Picker Title="Select template for graph"
+                                HorizontalOptions="FillAndExpand"
+                                ItemsSource="{Binding WorkoutTemplates}"
+                                ItemDisplayBinding="{Binding Name}"
+                                SelectedItem="{Binding SelectedProgressTemplate}" />
+                        <Button Text="Refresh" Command="{Binding RefreshGraphCommand}" />
+                    </HorizontalStackLayout>
+                    <WebView x:Name="TemplateProgressWebView"
+                             HeightRequest="300"
+                             Source="{Binding TemplateProgressChartSource}"
+                             Navigating="OnTemplateProgressWebViewNavigating" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Padding="12" BorderColor="LightGray" IsVisible="{Binding IsGraphPointEditorVisible}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding GraphPointEditorTitle}" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding GraphPointExerciseEdits}" HeightRequest="190">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:WorkoutExerciseLogDraft">
+                                <Grid ColumnDefinitions="2*,*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,6">
+                                    <Label Grid.Column="0" Text="{Binding Name}" VerticalOptions="Center" />
+                                    <Entry Grid.Column="1" Placeholder="Sets" Keyboard="Numeric" Text="{Binding Sets}" />
+                                    <Entry Grid.Column="2" Placeholder="Reps" Keyboard="Numeric" Text="{Binding Reps}" />
+                                    <Entry Grid.Column="3" Placeholder="Weight" Keyboard="Numeric" Text="{Binding Weight}" />
+                                    <Picker Grid.Column="4"
+                                            WidthRequest="70"
+                                            ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.WeightUnits}"
+                                            SelectedItem="{Binding WeightUnit}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <HorizontalStackLayout Spacing="8">
+                        <Button Text="Save Edits" Command="{Binding SaveGraphPointEditsCommand}" />
+                        <Button Text="Cancel" Command="{Binding CancelGraphPointEditsCommand}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Workout Planner" FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                        <Button Grid.Column="0" Text="&lt;" Command="{Binding PreviousMonthCommand}" />
+                        <Label Grid.Column="1" Text="{Binding DisplayMonthLabel}" HorizontalTextAlignment="Center" VerticalOptions="Center" FontAttributes="Bold" />
+                        <Button Grid.Column="2" Text="&gt;" Command="{Binding NextMonthCommand}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="4">
+                        <Label Text="Sun" FontSize="11" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="1" Text="Mon" FontSize="11" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="2" Text="Tue" FontSize="11" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="3" Text="Wed" FontSize="11" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="4" Text="Thu" FontSize="11" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="5" Text="Fri" FontSize="11" HorizontalTextAlignment="Center" />
+                        <Label Grid.Column="6" Text="Sat" FontSize="11" HorizontalTextAlignment="Center" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding CalendarDays}" HeightRequest="220" SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical" Span="7" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:WorkoutCalendarDay">
+                                <Frame Padding="4" Margin="2" BorderColor="#E0E0E0" BackgroundColor="Transparent">
+                                    <Frame.Triggers>
+                                        <DataTrigger TargetType="Frame" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="#D6E6FF" />
+                                            <Setter Property="BorderColor" Value="#7AA6FF" />
+                                        </DataTrigger>
+                                    </Frame.Triggers>
+                                    <Label Text="{Binding DayNumber}" HorizontalTextAlignment="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsCurrentMonth}" Value="False">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectCalendarDayCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Frame.GestureRecognizers>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <HorizontalStackLayout Spacing="8">
+                        <Picker Title="Template"
+                                HorizontalOptions="FillAndExpand"
+                                ItemsSource="{Binding WorkoutTemplates}"
+                                ItemDisplayBinding="{Binding Name}"
+                                SelectedItem="{Binding SelectedPlanTemplate}" />
+                        <Button Text="Add Plan" Command="{Binding AddPlanCommand}" />
+                    </HorizontalStackLayout>
+                    <CollectionView ItemsSource="{Binding WorkoutPlansForSelectedDate}" HeightRequest="120">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:WorkoutPlanItem">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding TemplateName}" HorizontalOptions="FillAndExpand" VerticalOptions="Center" />
+                                    <Label Text="{Binding IsCompleted, StringFormat='Done: {0}'}" VerticalOptions="Center" />
+                                    <Button Text="Toggle"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.TogglePlanCompletionCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeletePlanCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Log Workout" FontAttributes="Bold" />
+                    <Picker Title="Select workout template"
+                            ItemsSource="{Binding AddWorkoutOptions}"
+                            ItemDisplayBinding="{Binding DisplayLabel}"
+                            SelectedItem="{Binding SelectedWorkoutOption}" />
+                    <Entry Placeholder="Other workout name"
+                           IsVisible="{Binding IsOtherWorkoutSelected}"
+                           Text="{Binding OtherWorkoutName}" />
+                    <Entry Placeholder="Duration minutes (optional)" Keyboard="Numeric" Text="{Binding NewWorkoutMinutes}" />
+                    <CollectionView ItemsSource="{Binding ActiveTemplateExerciseLogs}"
+                                    IsVisible="{Binding UsesTemplateWorkoutSelection}"
+                                    HeightRequest="180">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:WorkoutExerciseLogDraft">
+                                <Grid ColumnDefinitions="Auto,2*,*,*,*,Auto" ColumnSpacing="8" Margin="0,0,0,6">
+                                    <BoxView Grid.Column="0" WidthRequest="12" HeightRequest="12" CornerRadius="6" Color="{Binding SetColorHex}" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" />
+                                    <Entry Grid.Column="2" Placeholder="Sets" Keyboard="Numeric" Text="{Binding Sets}" />
+                                    <Entry Grid.Column="3" Placeholder="Reps" Keyboard="Numeric" Text="{Binding Reps}" />
+                                    <Entry Grid.Column="4" Placeholder="Weight" Keyboard="Numeric" Text="{Binding Weight}" />
+                                    <Picker Grid.Column="5"
+                                            WidthRequest="70"
+                                            ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.WeightUnits}"
+                                            SelectedItem="{Binding WeightUnit}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <DatePicker Date="{Binding SelectedCompletedOn}" />
+                    <Button Text="Add Workout" Command="{Binding AddWorkoutCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Padding="12" BorderColor="LightGray">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Workout Templates" FontAttributes="Bold" />
+                    <Label Text="{Binding TemplateCount, StringFormat='Saved templates: {0}'}" FontSize="12" />
+                    <Entry Placeholder="Template name (ex: Push Day)" Text="{Binding TemplateName}" />
+
+                    <CollectionView ItemsSource="{Binding TemplateExerciseRows}" HeightRequest="180">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:WorkoutTemplateExerciseDraft">
+                                <Grid ColumnDefinitions="2*,*,*,*,Auto,Auto" ColumnSpacing="8" Margin="0,0,0,6">
+                                    <Entry Grid.Column="0" Placeholder="Exercise name" Text="{Binding Name}" />
+                                    <Entry Grid.Column="1" Placeholder="Sets" Keyboard="Numeric" Text="{Binding Sets}" />
+                                    <Entry Grid.Column="2" Placeholder="Reps" Keyboard="Numeric" Text="{Binding Reps}" />
+                                    <Entry Grid.Column="3" Placeholder="Weight" Keyboard="Numeric" Text="{Binding Weight}" />
+                                    <Picker Grid.Column="4"
+                                            WidthRequest="70"
+                                            ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.WeightUnits}"
+                                            SelectedItem="{Binding WeightUnit}" />
+                                    <Button Text="X"
+                                            Grid.Column="5"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveTemplateExerciseCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Button Text="Add Exercise Row" Command="{Binding AddTemplateExerciseCommand}" />
+                    <Button Text="Save Template" Command="{Binding SaveTemplateCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <CollectionView ItemsSource="{Binding Workouts}" HeightRequest="260">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:WorkoutEntry">
+                        <Frame Padding="10" Margin="0,0,0,8" BorderColor="LightGray">
+                            <HorizontalStackLayout>
+                                <VerticalStackLayout HorizontalOptions="StartAndExpand">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                <Label Text="{Binding DurationMinutes, StringFormat='{0} minutes'}" FontSize="12" />
+                                <Label Text="{Binding CompletedOn, StringFormat='{0:ddd, MMM d}'}" FontSize="12" />
+                                </VerticalStackLayout>
+                                <Button Text="Delete"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteWorkoutCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <CollectionView ItemsSource="{Binding WorkoutTemplates}" HeightRequest="260">
+                <CollectionView.Header>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Saved Templates" FontSize="20" FontAttributes="Bold" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="Quick add date:" VerticalOptions="Center" />
+                            <DatePicker Date="{Binding SelectedTemplateQuickAddDate}" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:WorkoutTemplateDetail">
+                        <Frame Padding="10" Margin="0,0,0,8" BorderColor="LightGray">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                <Label Text="{Binding ExerciseSummary}" FontSize="12" />
+                                <HorizontalStackLayout>
+                                    <Button Text="Use"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.UseTemplateCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Add on Date"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.QuickAddTemplateWorkoutCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Delete"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteTemplateCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

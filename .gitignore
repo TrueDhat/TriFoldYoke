@@ -1,0 +1,11 @@
+# .NET / MAUI
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.pdb
+# OS / editor
+.DS_Store
+Thumbs.db
